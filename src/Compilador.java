@@ -17,7 +17,8 @@ public class Compilador implements CompiladorConstants {
 
   static void inicio() throws ParseException {
       Token t;
-   do {
+   do
+   {
       t = getNextToken();
       System.out.println(tokenImage[t.kind]+"\u005ct"+t.image);
    }

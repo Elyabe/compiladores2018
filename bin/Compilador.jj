@@ -68,7 +68,8 @@ TOKEN : {
 JAVACODE void inicio()
 {
       Token t;
-   do {
+   do
+   {
       t = getNextToken();
       System.out.println(tokenImage[t.kind]+"\t"+t.image);
    }
