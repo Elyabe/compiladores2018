@@ -12,24 +12,59 @@ public class Compilador
     
    public static void main(String args[])  throws ParseException
    {
-	  tab = new Tabela();
       Compilador compilador = null;
+	  tab = new Tabela();
+
       try
       {
-         compilador = new Compilador(new FileInputStream("exemplo11.spc"));
+         compilador = new Compilador(new FileInputStream("exemplo17.spc"));
          Compilador.inicio();
 		 System.out.println(tab);
-         System.out.println("Compilado com sucesso!");
+         System.out.println("Execução finalizada com sucesso!\n");
       }
       catch(FileNotFoundException e)
       {
-         System.out.println("Erro: arquivo nao encontrado");
+         System.out.println("Erro: arquivo nao encontrado\n");
       }
       catch(TokenMgrError e)
       {
-         System.out.println("Erro lexico\n" + e.getMessage());
+         System.out.println("Erro lexico:\n" + e.getMessage());
       }
+      catch(ParseException e)
+      {
+		System.out.println("Erro Sintático:\n" + e.getMessage());
+      }
+      
    }
+
+   public static void declaracaoPrevia( Token t )
+   {
+     	if ( !tab.isExiste( t.image ) )
+		{
+			System.out.println("erro: variável " + t.image + " não declarada na linha " + t.beginLine + "\n");
+		}
+   }
+
+   public static void criarVariavel( Token t, char _c_tp )
+   {
+		Simbolo simb = null;
+		switch ( _c_tp )
+		{
+			case 'N':
+				simb = new Simbolo( t.image );
+				break;
+			case 'S':
+				simb = new Simbolo( t.image, Tipo.PALAVRA );
+				break;
+
+		}
+
+	  	if ( !tab.incluir( simb ) )
+	  	{
+			System.out.println("erro: variável " + t.image + " repetida na linha " + t.beginLine + "\n");
+	  	}
+	 
+   }  
 }
 PARSER_END(Compilador)
  
@@ -115,13 +150,7 @@ void termo4() : { Token t; }
 	< NUM > |
 	< SOMA > < NUM > |
 	< SUB > < NUM > |
-	t = < VAR >
-	{
-		if ( !tab.isExiste( t.image ) )
-		{
-			System.out.println("erro: variável " + t.image + " não declarada na linha " + t.beginLine + "\n");
-		}
-	} |
+	t = < VAR > { declaracaoPrevia(t); } |
 	< STRING >
 }
 
@@ -137,67 +166,32 @@ void comando() : { }
 
 void atribuicao() : { Token t;}
 {
-	t = < VAR >
-	{
-		if ( !tab.isExiste( t.image ) )
-		{
-			System.out.println("erro: variável " + t.image + " não declarada na linha " + t.beginLine + "\n");
-		}
-	}
-	< ATRIB > expressao() < PV >
+	t = < VAR > { declaracaoPrevia(t);} < ATRIB > expressao() < PV >
 }
 
-void declaracao() : { Simbolo simb = null; Token t; char c_tp; }
+void declaracao() : {Token t; char c_tp; }
 {
 	( < NUMERO > { c_tp = 'N'; } | < PALAVRA > { c_tp = 'S'; } )
-	t = < VAR >
-	{
-		switch ( c_tp )
-		{
-			case 'N':
-				simb = new Simbolo( t.image );
-				break;
-			case 'S':
-				simb = new Simbolo( t.image, Tipo.PALAVRA );
-				break;
-
-		}
-
-	  if ( !tab.incluir( simb ) )
-	  {
-		System.out.println("erro: variável " + t.image + " repetida na linha " + t.beginLine + "\n");
-	  }
-	  
-	}
-	( < ATRIB > expressao() )? ( < VIRGULA > < VAR > ( < ATRIB > expressao() )? )* < PV >
+	t = < VAR > { criarVariavel( t, c_tp ); }( < ATRIB > expressao() )?
+	( < VIRGULA > t =  < VAR > ( < ATRIB > expressao() )? { criarVariavel( t, c_tp ); } )* < PV >
 }
 
 void se() : { }
 {
-	< SE > < AP > expressao() < FP > inicio() < FIMSE >
+	< SE > < AP > expressao() < FP > ( comando() )* < FIMSE >
 }
 
 void enquanto() : { }
 {
-	< ENQUANTO > < AP > expressao() < FP > inicio() < FIMENQUANTO >
+	< ENQUANTO > < AP > expressao() < FP > ( comando() )* < FIMENQUANTO >
 }
 
 void le() : { Token t; }
 {
-	< LEITURA > t = < VAR >
-	{
-		if ( !tab.isExiste( t.image ) )
-		{
-			System.out.println("erro: variável " + t.image + " não declarada na linha " + t.beginLine + "\n");
-		}
-	}
-	 ( < VIRGULA > < VAR > )* < PV >
+	< LEITURA > t = < VAR > { declaracaoPrevia(t); } ( < VIRGULA > t = < VAR > { declaracaoPrevia(t); } )* < PV >
 }
 
 void exibe() : { }
 {
 	< EXIBE > expressao() ( < VIRGULA > expressao() )* < PV >
 }
-
-
-

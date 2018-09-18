@@ -6,23 +6,58 @@ public class Compilador implements CompiladorConstants {
 
    public static void main(String args[])  throws ParseException
    {
-          tab = new Tabela();
       Compilador compilador = null;
+          tab = new Tabela();
+
       try
       {
-         compilador = new Compilador(new FileInputStream("exemplo11.spc"));
+         compilador = new Compilador(new FileInputStream("exemplo17.spc"));
          Compilador.inicio();
                  System.out.println(tab);
-         System.out.println("Compilado com sucesso!");
+         System.out.println("Execu\u00e7\u00e3o finalizada com sucesso!\u005cn");
       }
       catch(FileNotFoundException e)
       {
-         System.out.println("Erro: arquivo nao encontrado");
+         System.out.println("Erro: arquivo nao encontrado\u005cn");
       }
       catch(TokenMgrError e)
       {
-         System.out.println("Erro lexico\u005cn" + e.getMessage());
+         System.out.println("Erro lexico:\u005cn" + e.getMessage());
       }
+      catch(ParseException e)
+      {
+                System.out.println("Erro Sint\u00e1tico:\u005cn" + e.getMessage());
+      }
+
+   }
+
+   public static void declaracaoPrevia( Token t )
+   {
+        if ( !tab.isExiste( t.image ) )
+                {
+                        System.out.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada na linha " + t.beginLine + "\u005cn");
+                }
+   }
+
+   public static void criarVariavel( Token t, char _c_tp )
+   {
+                Simbolo simb = null;
+                switch ( _c_tp )
+                {
+                        case 'N':
+                                simb = new Simbolo( t.image );
+                                break;
+                        case 'S':
+                                simb = new Simbolo( t.image, Tipo.PALAVRA );
+                                break;
+
+                }
+
+                if ( !tab.incluir( simb ) )
+                {
+                        System.out.println("erro: vari\u00e1vel " + t.image + " repetida na linha " + t.beginLine + "\u005cn");
+                }
+
    }
 
   static final public void inicio() throws ParseException {
@@ -173,10 +208,7 @@ public class Compilador implements CompiladorConstants {
       break;
     case VAR:
       t = jj_consume_token(VAR);
-                if ( !tab.isExiste( t.image ) )
-                {
-                        System.out.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada na linha " + t.beginLine + "\u005cn");
-                }
+                      declaracaoPrevia(t);
       break;
     case STRING:
       jj_consume_token(STRING);
@@ -219,17 +251,14 @@ public class Compilador implements CompiladorConstants {
   static final public void atribuicao() throws ParseException {
                       Token t;
     t = jj_consume_token(VAR);
-                if ( !tab.isExiste( t.image ) )
-                {
-                        System.out.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada na linha " + t.beginLine + "\u005cn");
-                }
+                      declaracaoPrevia(t);
     jj_consume_token(ATRIB);
     expressao();
     jj_consume_token(PV);
   }
 
   static final public void declaracao() throws ParseException {
-                      Simbolo simb = null; Token t; char c_tp;
+                     Token t; char c_tp;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case NUMERO:
       jj_consume_token(NUMERO);
@@ -245,21 +274,7 @@ public class Compilador implements CompiladorConstants {
       throw new ParseException();
     }
     t = jj_consume_token(VAR);
-                switch ( c_tp )
-                {
-                        case 'N':
-                                simb = new Simbolo( t.image );
-                                break;
-                        case 'S':
-                                simb = new Simbolo( t.image, Tipo.PALAVRA );
-                                break;
-
-                }
-
-          if ( !tab.incluir( simb ) )
-          {
-                System.out.println("erro: vari\u00e1vel " + t.image + " repetida na linha " + t.beginLine + "\u005cn");
-          }
+                      criarVariavel( t, c_tp );
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ATRIB:
       jj_consume_token(ATRIB);
@@ -280,7 +295,7 @@ public class Compilador implements CompiladorConstants {
         break label_6;
       }
       jj_consume_token(VIRGULA);
-      jj_consume_token(VAR);
+      t = jj_consume_token(VAR);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ATRIB:
         jj_consume_token(ATRIB);
@@ -290,6 +305,7 @@ public class Compilador implements CompiladorConstants {
         jj_la1[13] = jj_gen;
         ;
       }
+                                                                criarVariavel( t, c_tp );
     }
     jj_consume_token(PV);
   }
@@ -299,7 +315,24 @@ public class Compilador implements CompiladorConstants {
     jj_consume_token(AP);
     expressao();
     jj_consume_token(FP);
-    inicio();
+    label_7:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case EXIBE:
+      case LEITURA:
+      case SE:
+      case ENQUANTO:
+      case NUMERO:
+      case PALAVRA:
+      case VAR:
+        ;
+        break;
+      default:
+        jj_la1[14] = jj_gen;
+        break label_7;
+      }
+      comando();
+    }
     jj_consume_token(FIMSE);
   }
 
@@ -308,7 +341,24 @@ public class Compilador implements CompiladorConstants {
     jj_consume_token(AP);
     expressao();
     jj_consume_token(FP);
-    inicio();
+    label_8:
+    while (true) {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case EXIBE:
+      case LEITURA:
+      case SE:
+      case ENQUANTO:
+      case NUMERO:
+      case PALAVRA:
+      case VAR:
+        ;
+        break;
+      default:
+        jj_la1[15] = jj_gen;
+        break label_8;
+      }
+      comando();
+    }
     jj_consume_token(FIMENQUANTO);
   }
 
@@ -316,22 +366,20 @@ public class Compilador implements CompiladorConstants {
               Token t;
     jj_consume_token(LEITURA);
     t = jj_consume_token(VAR);
-                if ( !tab.isExiste( t.image ) )
-                {
-                        System.out.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada na linha " + t.beginLine + "\u005cn");
-                }
-    label_7:
+                                  declaracaoPrevia(t);
+    label_9:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case VIRGULA:
         ;
         break;
       default:
-        jj_la1[14] = jj_gen;
-        break label_7;
+        jj_la1[16] = jj_gen;
+        break label_9;
       }
       jj_consume_token(VIRGULA);
-      jj_consume_token(VAR);
+      t = jj_consume_token(VAR);
+                                                                                     declaracaoPrevia(t);
     }
     jj_consume_token(PV);
   }
@@ -339,15 +387,15 @@ public class Compilador implements CompiladorConstants {
   static final public void exibe() throws ParseException {
     jj_consume_token(EXIBE);
     expressao();
-    label_8:
+    label_10:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case VIRGULA:
         ;
         break;
       default:
-        jj_la1[15] = jj_gen;
-        break label_8;
+        jj_la1[17] = jj_gen;
+        break label_10;
       }
       jj_consume_token(VIRGULA);
       expressao();
@@ -365,13 +413,13 @@ public class Compilador implements CompiladorConstants {
   static public Token jj_nt;
   static private int jj_ntk;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[16];
+  static final private int[] jj_la1 = new int[18];
   static private int[] jj_la1_0;
   static {
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x81ae0,0x4000000,0x10000000,0x20000000,0xc00000,0xc00000,0x3000000,0x3000000,0xec4000,0x81ae0,0x1800,0x8000000,0x20000,0x8000000,0x20000,0x20000,};
+      jj_la1_0 = new int[] {0x81ae0,0x4000000,0x10000000,0x20000000,0xc00000,0xc00000,0x3000000,0x3000000,0xec4000,0x81ae0,0x1800,0x8000000,0x20000,0x8000000,0x81ae0,0x81ae0,0x20000,0x20000,};
    }
 
   /** Constructor with InputStream. */
@@ -392,7 +440,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -406,7 +454,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -423,7 +471,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -433,7 +481,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -449,7 +497,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -458,7 +506,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 18; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -514,7 +562,7 @@ public class Compilador implements CompiladorConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 18; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
