@@ -6,14 +6,19 @@ options {
 PARSER_BEGIN(Compilador)
 import java.io.*;
 public class Compilador
-{ 
+{
+   // Tabela de símbolos do compilador
+   static public Tabela tab;
+    
    public static void main(String args[])  throws ParseException
    {
+	  tab = new Tabela();
       Compilador compilador = null;
       try
       {
-         compilador = new Compilador(new FileInputStream("exemplo03.spc"));
+         compilador = new Compilador(new FileInputStream("exemplo11.spc"));
          Compilador.inicio();
+		 System.out.println(tab);
          System.out.println("Compilado com sucesso!");
       }
       catch(FileNotFoundException e)
@@ -129,10 +134,25 @@ void atribuicao() : { }
 	< VAR > <ATRIB > expressao() < PV >
 }
 
-void declaracao() : { }
+void declaracao() : { Simbolo simb = null; Token t; char c_tp; }
 {
-	( < NUM > | < PALAVRA > ) < VAR > ( < ATRIB > expressao() )?
-	(< VIRGULA > < VAR > ( < ATRIB > expressao() )? )* < PV >
+	( < NUMERO > { c_tp = 'N'; } | < PALAVRA > { c_tp = 'S'; } )
+	t = < VAR >
+	{
+		switch ( c_tp )
+		{
+			case 'N':
+				simb = new Simbolo( t.image );
+				break;
+			case 'S':
+				simb = new Simbolo( t.image, Tipo.PALAVRA );
+				break;
+
+		}
+	  tab.incluir( simb );
+	}
+	( < ATRIB > expressao() )?
+	( < VIRGULA > < VAR > ( < ATRIB > expressao() )? )* < PV >
 }
 
 void se() : { }
@@ -154,3 +174,6 @@ void exibe() : { }
 {
 	< EXIBE > expressao() ( < VIRGULA > expressao() )* < PV >
 }
+
+
+
