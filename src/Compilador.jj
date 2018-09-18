@@ -109,13 +109,19 @@ void termo3() : { }
 	termo4()( ( < MUL > | < DIV > ) termo4() )*
 }
 
-void termo4() : { }
+void termo4() : { Token t; }
 {
 	< AP > expressao() < FP > |
 	< NUM > |
 	< SOMA > < NUM > |
 	< SUB > < NUM > |
-	< VAR > |
+	t = < VAR >
+	{
+		if ( !tab.isExiste( t.image ) )
+		{
+			System.out.println("erro: variável " + t.image + " não declarada na linha " + t.beginLine + "\n");
+		}
+	} |
 	< STRING >
 }
 
@@ -129,9 +135,16 @@ void comando() : { }
 	exibe()
 }
 
-void atribuicao() : { }
+void atribuicao() : { Token t;}
 {
-	< VAR > <ATRIB > expressao() < PV >
+	t = < VAR >
+	{
+		if ( !tab.isExiste( t.image ) )
+		{
+			System.out.println("erro: variável " + t.image + " não declarada na linha " + t.beginLine + "\n");
+		}
+	}
+	< ATRIB > expressao() < PV >
 }
 
 void declaracao() : { Simbolo simb = null; Token t; char c_tp; }
@@ -149,10 +162,14 @@ void declaracao() : { Simbolo simb = null; Token t; char c_tp; }
 				break;
 
 		}
-	  tab.incluir( simb );
+
+	  if ( !tab.incluir( simb ) )
+	  {
+		System.out.println("erro: variável " + t.image + " repetida na linha " + t.beginLine + "\n");
+	  }
+	  
 	}
-	( < ATRIB > expressao() )?
-	( < VIRGULA > < VAR > ( < ATRIB > expressao() )? )* < PV >
+	( < ATRIB > expressao() )? ( < VIRGULA > < VAR > ( < ATRIB > expressao() )? )* < PV >
 }
 
 void se() : { }
@@ -165,9 +182,16 @@ void enquanto() : { }
 	< ENQUANTO > < AP > expressao() < FP > inicio() < FIMENQUANTO >
 }
 
-void le() : { }
+void le() : { Token t; }
 {
-	< LEITURA > < VAR > expressao() ( < VIRGULA > < VAR > )* < PV >
+	< LEITURA > t = < VAR >
+	{
+		if ( !tab.isExiste( t.image ) )
+		{
+			System.out.println("erro: variável " + t.image + " não declarada na linha " + t.beginLine + "\n");
+		}
+	}
+	 ( < VIRGULA > < VAR > )* < PV >
 }
 
 void exibe() : { }

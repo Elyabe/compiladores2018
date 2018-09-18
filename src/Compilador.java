@@ -153,6 +153,7 @@ public class Compilador implements CompiladorConstants {
   }
 
   static final public void termo4() throws ParseException {
+                  Token t;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case AP:
       jj_consume_token(AP);
@@ -171,7 +172,11 @@ public class Compilador implements CompiladorConstants {
       jj_consume_token(NUM);
       break;
     case VAR:
-      jj_consume_token(VAR);
+      t = jj_consume_token(VAR);
+                if ( !tab.isExiste( t.image ) )
+                {
+                        System.out.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada na linha " + t.beginLine + "\u005cn");
+                }
       break;
     case STRING:
       jj_consume_token(STRING);
@@ -212,7 +217,12 @@ public class Compilador implements CompiladorConstants {
   }
 
   static final public void atribuicao() throws ParseException {
-    jj_consume_token(VAR);
+                      Token t;
+    t = jj_consume_token(VAR);
+                if ( !tab.isExiste( t.image ) )
+                {
+                        System.out.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada na linha " + t.beginLine + "\u005cn");
+                }
     jj_consume_token(ATRIB);
     expressao();
     jj_consume_token(PV);
@@ -245,7 +255,11 @@ public class Compilador implements CompiladorConstants {
                                 break;
 
                 }
-          tab.incluir( simb );
+
+          if ( !tab.incluir( simb ) )
+          {
+                System.out.println("erro: vari\u00e1vel " + t.image + " repetida na linha " + t.beginLine + "\u005cn");
+          }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ATRIB:
       jj_consume_token(ATRIB);
@@ -299,9 +313,13 @@ public class Compilador implements CompiladorConstants {
   }
 
   static final public void le() throws ParseException {
+              Token t;
     jj_consume_token(LEITURA);
-    jj_consume_token(VAR);
-    expressao();
+    t = jj_consume_token(VAR);
+                if ( !tab.isExiste( t.image ) )
+                {
+                        System.out.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada na linha " + t.beginLine + "\u005cn");
+                }
     label_7:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
