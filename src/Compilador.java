@@ -11,7 +11,7 @@ public class Compilador implements CompiladorConstants {
 
       try
       {
-         compilador = new Compilador(new FileInputStream("exemplo17.spc"));
+         compilador = new Compilador(new FileInputStream("exemplo16.spc"));
          Compilador.inicio();
                  System.out.println(tab);
          System.out.println("Execu\u00e7\u00e3o finalizada com sucesso!\u005cn");
@@ -28,35 +28,6 @@ public class Compilador implements CompiladorConstants {
       {
                 System.out.println("Erro Sint\u00e1tico:\u005cn" + e.getMessage());
       }
-
-   }
-
-   public static void declaracaoPrevia( Token t )
-   {
-        if ( !tab.isExiste( t.image ) )
-                {
-                        System.out.println("erro: vari\u00e1vel " + t.image + " n\u00e3o declarada na linha " + t.beginLine + "\u005cn");
-                }
-   }
-
-   public static void criarVariavel( Token t, char _c_tp )
-   {
-                Simbolo simb = null;
-                switch ( _c_tp )
-                {
-                        case 'N':
-                                simb = new Simbolo( t.image );
-                                break;
-                        case 'S':
-                                simb = new Simbolo( t.image, Tipo.PALAVRA );
-                                break;
-
-                }
-
-                if ( !tab.incluir( simb ) )
-                {
-                        System.out.println("erro: vari\u00e1vel " + t.image + " repetida na linha " + t.beginLine + "\u005cn");
-                }
 
    }
 
@@ -208,7 +179,7 @@ public class Compilador implements CompiladorConstants {
       break;
     case VAR:
       t = jj_consume_token(VAR);
-                      declaracaoPrevia(t);
+                      tab.declaracaoPrevia(t);
       break;
     case STRING:
       jj_consume_token(STRING);
@@ -251,7 +222,7 @@ public class Compilador implements CompiladorConstants {
   static final public void atribuicao() throws ParseException {
                       Token t;
     t = jj_consume_token(VAR);
-                      declaracaoPrevia(t);
+                      tab.declaracaoPrevia(t);
     jj_consume_token(ATRIB);
     expressao();
     jj_consume_token(PV);
@@ -274,7 +245,7 @@ public class Compilador implements CompiladorConstants {
       throw new ParseException();
     }
     t = jj_consume_token(VAR);
-                      criarVariavel( t, c_tp );
+                      tab.criarVariavel( t, c_tp );
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case ATRIB:
       jj_consume_token(ATRIB);
@@ -305,7 +276,7 @@ public class Compilador implements CompiladorConstants {
         jj_la1[13] = jj_gen;
         ;
       }
-                                                                criarVariavel( t, c_tp );
+                                                                tab.criarVariavel( t, c_tp );
     }
     jj_consume_token(PV);
   }
@@ -366,7 +337,7 @@ public class Compilador implements CompiladorConstants {
               Token t;
     jj_consume_token(LEITURA);
     t = jj_consume_token(VAR);
-                                  declaracaoPrevia(t);
+                                  tab.declaracaoPrevia(t);
     label_9:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -379,7 +350,7 @@ public class Compilador implements CompiladorConstants {
       }
       jj_consume_token(VIRGULA);
       t = jj_consume_token(VAR);
-                                                                                     declaracaoPrevia(t);
+                                                                                         tab.declaracaoPrevia(t);
     }
     jj_consume_token(PV);
   }

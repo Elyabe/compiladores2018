@@ -17,7 +17,7 @@ public class Compilador
 
       try
       {
-         compilador = new Compilador(new FileInputStream("exemplo17.spc"));
+         compilador = new Compilador(new FileInputStream("exemplo16.spc"));
          Compilador.inicio();
 		 System.out.println(tab);
          System.out.println("Execução finalizada com sucesso!\n");
@@ -36,35 +36,6 @@ public class Compilador
       }
       
    }
-
-   public static void declaracaoPrevia( Token t )
-   {
-     	if ( !tab.isExiste( t.image ) )
-		{
-			System.out.println("erro: variável " + t.image + " não declarada na linha " + t.beginLine + "\n");
-		}
-   }
-
-   public static void criarVariavel( Token t, char _c_tp )
-   {
-		Simbolo simb = null;
-		switch ( _c_tp )
-		{
-			case 'N':
-				simb = new Simbolo( t.image );
-				break;
-			case 'S':
-				simb = new Simbolo( t.image, Tipo.PALAVRA );
-				break;
-
-		}
-
-	  	if ( !tab.incluir( simb ) )
-	  	{
-			System.out.println("erro: variável " + t.image + " repetida na linha " + t.beginLine + "\n");
-	  	}
-	 
-   }  
 }
 PARSER_END(Compilador)
  
@@ -150,7 +121,7 @@ void termo4() : { Token t; }
 	< NUM > |
 	< SOMA > < NUM > |
 	< SUB > < NUM > |
-	t = < VAR > { declaracaoPrevia(t); } |
+	t = < VAR > { tab.declaracaoPrevia(t); } |
 	< STRING >
 }
 
@@ -166,14 +137,14 @@ void comando() : { }
 
 void atribuicao() : { Token t;}
 {
-	t = < VAR > { declaracaoPrevia(t);} < ATRIB > expressao() < PV >
+	t = < VAR > { tab.declaracaoPrevia(t);} < ATRIB > expressao() < PV >
 }
 
 void declaracao() : {Token t; char c_tp; }
 {
 	( < NUMERO > { c_tp = 'N'; } | < PALAVRA > { c_tp = 'S'; } )
-	t = < VAR > { criarVariavel( t, c_tp ); }( < ATRIB > expressao() )?
-	( < VIRGULA > t =  < VAR > ( < ATRIB > expressao() )? { criarVariavel( t, c_tp ); } )* < PV >
+	t = < VAR > { tab.criarVariavel( t, c_tp ); }( < ATRIB > expressao() )?
+	( < VIRGULA > t =  < VAR > ( < ATRIB > expressao() )? { tab.criarVariavel( t, c_tp ); } )* < PV >
 }
 
 void se() : { }
@@ -188,7 +159,7 @@ void enquanto() : { }
 
 void le() : { Token t; }
 {
-	< LEITURA > t = < VAR > { declaracaoPrevia(t); } ( < VIRGULA > t = < VAR > { declaracaoPrevia(t); } )* < PV >
+	< LEITURA > t = < VAR > { tab.declaracaoPrevia(t); } ( < VIRGULA > t = < VAR > { tab.declaracaoPrevia(t); } )* < PV >
 }
 
 void exibe() : { }
