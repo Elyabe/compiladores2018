@@ -48,7 +48,7 @@ public class Simbolo
 
 	public void setTipo(Tipo _tipo) 
 	{
-		this.tipo = tipo;
+		this.tipo = _tipo;
 	}
 	
 	public String toString()
