@@ -3,6 +3,8 @@ options {
   DEBUG_TOKEN_MANAGER = false;
 }
 
+// henrique
+
 PARSER_BEGIN(Compilador)
 import java.io.*;
 public class Compilador
