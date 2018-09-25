@@ -1,4 +1,5 @@
 
+
 public class Simbolo 
 {
 	// Identificador da variável
