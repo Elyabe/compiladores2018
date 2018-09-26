@@ -1,7 +1,7 @@
 
 public class Item 
 {
-	private Tipo tipo;
+	private Enum<?> tipo;
 	private String descricao;
 	
 	public Item( String _descricao )
@@ -10,13 +10,13 @@ public class Item
 		this.descricao = _descricao;
 	}
 	
-	public Item( String _descricao, Tipo _tipo )
+	public Item( String _descricao, Enum<?> _tipo )
 	{
 		this.tipo = _tipo;
 		this.descricao = _descricao;
 	}
 	
-	public Tipo getTipo() 
+	public Enum<?> getTipo() 
 	{
 		return this.tipo;
 	}
@@ -30,6 +30,7 @@ public class Item
 	{
 		return descricao;
 	}
+	
 	public void setDescricao(String _descricao) 
 	{
 		this.descricao = _descricao;

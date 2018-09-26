@@ -17,7 +17,7 @@ public class Lista
 	@Override
 	public String toString() 
 	{
-		return "Lista [lista=" + lista + "]";
+		return this.lista.toString();
 	}
 	
 	
