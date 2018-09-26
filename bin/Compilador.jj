@@ -7,7 +7,6 @@ options
 PARSER_BEGIN(Compilador)
 
 import java.io.*;
-import java.util.LinkedList;
 public class Compilador
 {
    // Tabela de símbolos do compilador
@@ -20,7 +19,7 @@ public class Compilador
 
       try
       {
-         compilador = new Compilador(new FileInputStream("exemplo16.spc"));
+         compilador = new Compilador(new FileInputStream("exemplo14.spc"));
          Compilador.inicio();
 		 System.out.println(tab);
          System.out.println("Execução finalizada com sucesso!\n");
@@ -72,12 +71,14 @@ TOKEN : {
    		< VAR: (< CHAR >)+ (["a" - "z", "A" - "Z" ,"0" - "9", "_"])* > 
 }
 //-----------NUMEROS-----------
-TOKEN : {
+TOKEN :
+{
 	< #DIGIT: ["0"-"9"] > |  
     < NUM: (< DIGIT >)* (".")? (< DIGIT >)+ > 
 }
 //----------OPERADORES---------
-TOKEN : {
+TOKEN :
+{
  	< SOMA: "+" > |
 	< SUB: "-" > |
 	< MUL: "*" > |
@@ -93,66 +94,69 @@ void inicio() : { }
 	( comando() )* < EOF > 
 }
 
-void pre_exp() : { LinkedList<Item > listaExp = new LinkedList<Item>(); }
+void pre_exp() : { Lista listaExp = new Lista(); }
 {
 	expressao( listaExp ){ System.out.println(listaExp);}
 }
 
 
-void expressao( LinkedList<Item > listaExp ) : { }
+void expressao( Lista listaExp ) : { Token t; Item item; }
 {
-	( termo( listaExp ) ( < OU > termo( listaExp ) )* )
+	( termo( listaExp ) ( t = < OU > termo( listaExp ) { item = new Item( t.image, Operador.OU ); listaExp.add(item); } )* )
 }
 
-void termo(  LinkedList<Item > listaExp ) : { Token t; }
+void termo(  Lista listaExp ) : { Token t; Item item; }
 {
-	termo1( listaExp )( < IGUAL > termo1( listaExp ) )?
+	termo1( listaExp )( t = < IGUAL > termo1( listaExp ) { item = new Item( t.image, Operador.IGUAL ); listaExp.add(item); } )?
 }
 
-void termo1( LinkedList<Item > listaExp ) : { }
+void termo1( Lista listaExp ) : { Token t; Item item; }
 {
-	termo2( listaExp )( < CONCAT > termo2( listaExp ) )*
-}
-
-void termo2( LinkedList<Item > listaExp ) : {Token t; Item item;}
-{
-	termo3( listaExp )
-	( ( t = < SOMA > | t = < SUB > ) termo3( listaExp ) {
-		item = new Item( t.image );
-		listaExp.add( item );
-	  })*
-}
-
-void termo3( LinkedList<Item > listaExp ) : { Item item; Token t;}
-{
-	termo4( listaExp )( ( t = < MUL > | t = < DIV > ) termo4( listaExp )
+	termo2( listaExp )
+	( t = < CONCAT > termo2( listaExp )
 	{
-		item = new Item( t.image );
-		listaExp.add(item);
-    }
+	  item = new Item( t.image, Operador.CONCAT );
+	  listaExp.add(item);
+	}
 	)*
 }
 
-void termo4( LinkedList<Item > listaExp ) : { Item item; Token t; }
+void termo2( Lista listaExp ) : { Token t; Item item; Operador op; }
 {
-	< AP > expressao( listaExp ) < FP > |
-	t = < NUM >
+	termo3( listaExp )
+	( ( t = < SOMA > { op = Operador.ADD; } | t = < SUB > { op = Operador.SUB; } ) termo3( listaExp )
+	  {
+		item = new Item( t.image, op );
+		listaExp.add( item );
+	  }
+	)*
+}
+
+void termo3( Lista listaExp ) : { Item item; Token t; Operador op; }
+{
+	termo4( listaExp )
+	( ( t = < MUL > { op = Operador.MUL; } | t = < DIV > { op = Operador.DIV; } ) termo4( listaExp )
+	  {  
+		item = new Item( t.image, op );
+		listaExp.add(item);
+      }
+	)*
+}
+
+void termo4( Lista listaExp ) : { Item item; Token t; Tipo tp = null ; String sinal = "";}
+{
+	< AP > expressao( listaExp ) < FP >|
+    (
+	    t = < NUM > { tp = Tipo.NUMERO; }|
+		< SOMA > t = < NUM > { sinal = "+"; }|
+		< SUB > t = < NUM > { sinal = "-"; }|
+		t = < VAR > { tab.declaracaoPrevia(t); tp = Tipo.VARNUM; }|
+		t = < STRING > { tp = Tipo.VARSTR; }
+	)
 	{
-	  item = new Item( t.image, Tipo.NUMERO );
-	  listaExp.add(item);
-	}|
-	< SOMA > t = < NUM >
-	{
-	  item = new Item( t.image, Tipo.NUMERO );
-	  listaExp.add(item);
-	}|
-	< SUB > t = < NUM >
-	{
-	  item = new Item( t.image, Tipo.NUMERO );
-	  listaExp.add(item);
-	}|
-	t = < VAR > { tab.declaracaoPrevia(t); } |
-	< STRING >
+		item = new Item( sinal + t.image, tp );
+		listaExp.add( item );
+	}
 }
 
 void comando() : { }
@@ -170,14 +174,14 @@ void atribuicao() : { Token t;}
 	t = < VAR > { tab.declaracaoPrevia(t);} < ATRIB > pre_exp() < PV >
 }
 
-void declaracao() : {Token t; char c_tp; }
+void declaracao() : { Token t; char c_tp; }
 {
 	( < NUMERO > { c_tp = 'N'; } | < PALAVRA > { c_tp = 'S'; } )
 	t = < VAR > { tab.criarVariavel( t, c_tp ); }( < ATRIB > pre_exp() )?
 	( < VIRGULA > t =  < VAR > ( < ATRIB > pre_exp() )? { tab.criarVariavel( t, c_tp ); } )* < PV >
 }
 
-void se() : { }
+void se() : {}
 {
 	< SE > < AP > pre_exp() < FP > ( comando() )* < FIMSE >
 }
@@ -187,7 +191,7 @@ void enquanto() : {}
 	< ENQUANTO > < AP > pre_exp() < FP > ( comando() )* < FIMENQUANTO >
 }
 
-void le() : { Token t; }
+void le() : { Token t;}
 {
 	< LEITURA > t = < VAR > { tab.declaracaoPrevia(t); } ( < VIRGULA > t = < VAR > { tab.declaracaoPrevia(t); } )* < PV >
 }

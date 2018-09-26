@@ -1,5 +1,4 @@
 
-
 import java.util.HashMap;
 
 public class Tabela 
@@ -81,7 +80,6 @@ public class Tabela
 	{
 		return this.tab.containsKey(_chave);
 	}
-	
 	
 	public int getMarcador() 
 	{

@@ -1,6 +1,11 @@
 
 public enum Tipo 
 {
-	NUMERO, PALAVRA;
+	NUMERO, 
+	PALAVRA,
+	VARNUM,
+	VARSTR,
+	CTENUM,
+	CTESTR;
 	
 }
