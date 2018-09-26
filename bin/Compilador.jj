@@ -19,7 +19,7 @@ public class Compilador
 
       try
       {
-         compilador = new Compilador(new FileInputStream("exemplo14.spc"));
+         compilador = new Compilador(new FileInputStream("exemplo17.spc"));
          Compilador.inicio();
 		 System.out.println(tab);
          System.out.println("Execução finalizada com sucesso!\n");
