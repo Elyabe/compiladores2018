@@ -6,6 +6,7 @@ public enum Tipo
 	VARNUM,
 	VARSTR,
 	CTENUM,
-	CTESTR;
+	CTESTR,
+	LOGICO;
 	
 }
