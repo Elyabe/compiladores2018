@@ -1,0 +1,5 @@
+package tratamentoExcecao;
+
+public class ErroSemantico {
+
+}

@@ -1,0 +1,28 @@
+package semantico;
+import parser.*;
+import tratamentoExcecao.*;
+
+public class AcaoSemantica 
+{
+	public static void declaracaoPrevia( Tabela _tab, Token _t )
+    {
+     	if ( !_tab.isExiste( _t.image ) )
+		{
+			//System.out.println("erro: variável " + _t.image + " não declarada na linha " + _t.beginLine + "\n");
+			throw new ErroSintatico("Variável '" + _t.image + "' não declarada na linha " + _t.beginLine + "\n");
+		}
+    }
+	
+	public static void criarVariavel( Tabela _tab, Token t, Tipo _tp )
+    {
+		Simbolo simb = new Simbolo( t.image, _tp );
+	  	if ( !_tab.incluir( simb ) )
+	  	{
+			//System.out.println("erro: variável " + t.image + " repetida na linha " + t.beginLine + "\n");
+	  		throw new ErroSintatico("Variável '" + t.image + "' repetida na linha " + t.beginLine + "\n");
+	  	}
+	 
+    }  
+
+	
+}
