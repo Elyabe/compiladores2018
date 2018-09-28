@@ -1,0 +1,8 @@
+package tratamentoExcecao;
+
+public class TokenMgrError extends RuntimeException{
+	public TokenMgrError() 
+	{
+		super("Erro Léxico");
+	}
+}
