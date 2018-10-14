@@ -5,8 +5,3 @@
 /SimpleCharStream.java
 /Token.java
 /TokenMgrError.java
-/.gitignore
-/comando/
-/parser/
-/geradorCodigo/
-/apoio/
