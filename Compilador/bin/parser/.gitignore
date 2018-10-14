@@ -1,6 +1,4 @@
-/Compilador.java
 /CompiladorConstants.java
-/CompiladorTokenManager.java
 /ParseException.java
 /SimpleCharStream.java
 /Token.java
